@@ -36,6 +36,7 @@ enum editorKey {
 
 enum editorHighlight {
   HL_NORMAL = 0,
+  HL_MLCOMMENT,
   HL_COMMENT,
   HL_STRING,
   HL_NUMBER,
@@ -50,6 +51,8 @@ struct editorSyntax {
   char *filetype;
   char **filematch;
   char *singleline_comment_start;
+  char *multiline_comment_start;
+  char *multiline_comment_end;
   int flags;
 };
 
@@ -84,7 +87,7 @@ struct editorConfig E;
 /*** filetypes ***/
 char *C_HL_extensions[] = {".c", ".h", ".cpp", NULL};
 struct editorSyntax HLDB[] = {
-    {"c", C_HL_extensions, "//", HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS}};
+    {"c", C_HL_extensions, "//", "/*", "*/", HL_HIGHLIGHT_NUMBERS | HL_HIGHLIGHT_STRINGS}};
 
 #define HLDB_ENTRIES (sizeof(HLDB) / sizeof(HLDB[0]))
 
@@ -250,21 +253,47 @@ void editorUpdateSyntax(erow *row) {
     return;
 
   char *scs = E.syntax->singleline_comment_start;
+  char *mcs = E.syntax->multiline_comment_start;
+  char *mce = E.syntax->multiline_comment_end;
+
   int scs_len = scs ? strlen(scs) : 0;
+  int mcs_len = mcs ? strlen(mcs) : 0;
+  int mce_len = mcs ? strlen(mce) : 0;
 
   int prev_sep = 1;
   int in_string = 0;
+  int in_comment = 0;
 
   int i = 0;
   while (i < row->rsize) {
     char c = row->render[i];
     unsigned char prev_hl = (i > 0) ? row->hl[i - 1] : HL_NORMAL;
     
-    // TODO: DEBUG THIS SINGLE LINE COMMENT
     if (scs_len && !in_string) {
       if (!strncmp(&row->render[i], scs, scs_len)) {
         memset(&row->hl[i], HL_COMMENT, row->rsize - i);
         break;
+      }
+    }
+
+    if (mcs_len && mce_len && !in_string) {
+      if (in_comment) {
+        row->hl[i] = HL_MLCOMMENT;
+        if (!strncmp(&row->render[i], mce, mce_len)) {
+          memset(&row->hl[i], HL_MLCOMMENT, mce_len);
+          i += mce_len;
+          in_comment = 0;
+          prev_sep = 1;
+          continue;
+        } else {
+          i ++;
+          continue;
+        }
+      } else if (!strncmp(&row->render[i], mcs, mcs_len)) {
+        memset(&row->hl[i], HL_MLCOMMENT, mcs_len);
+        i += mcs_len;
+        in_comment = 1;
+        continue;
       }
     }
      
@@ -309,6 +338,7 @@ void editorUpdateSyntax(erow *row) {
 int editorSyntaxToColor(int hl) {
   switch (hl) {
   case HL_COMMENT:
+  case HL_MLCOMMENT:
     return 36;
   case HL_NUMBER:
     return 31;
