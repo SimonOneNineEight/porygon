@@ -1,0 +1,9 @@
+CompileFlags:
+  Add: 
+    - "-Iinclude"       # Your custom include directory
+    - "-std=c99"        # Enforce C99 standard or another version you use
+
+Diagnostics:
+  Suppress: 
+    - "-Wmissing-prototypes"    # Suppress warnings about missing function prototypes
+    - "-Wunknown-pragmas"       # Suppress warnings about unknown pragmas

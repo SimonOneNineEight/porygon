@@ -1,0 +1,11 @@
+# Ignore intermediate build files and final binaries
+/obj/           # Ignore the obj directory with object files
+porygon         # Ignore the final binary file
+*.exe           # Ignore Windows executables
+*.out           # Ignore Unix-like executable output files
+
+# Other files to ignore:
+*.log           # Ignore log files
+*.swp           # Ignore Vim swap files
+.DS_Store       # Ignore macOS system files
+

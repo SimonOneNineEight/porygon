@@ -17,9 +17,9 @@
 
 /*** defines ***/
 #define CTRL_KEY(k) ((k) & 0x1f)
-#define KILO_VERSION "0.01"
-#define KILO_TAB_STOP 8
-#define KILO_QUIT_TIMES 3
+#define PORYGON_VERSION "0.01"
+#define PORYGON_TAB_STOP 8
+#define PORYGON_QUIT_TIMES 3
 
 enum editorKey {
   BACKSPACE = 127,
@@ -428,7 +428,7 @@ int editorRowCxToRx(erow *row, int cx) {
   int j;
   for (j = 0; j < cx; j++) {
     if (row->chars[j] == '\t')
-      rx += (KILO_TAB_STOP - 1) - (rx % KILO_TAB_STOP);
+      rx += (PORYGON_TAB_STOP - 1) - (rx % PORYGON_TAB_STOP);
     rx++;
   }
   return rx;
@@ -439,7 +439,7 @@ int editorRowRxToCx(erow *row, int rx) {
   int cx;
   for (cx = 0; cx < row->size; cx++) {
     if (row->chars[cx] == '\t') {
-      cur_rx += (KILO_TAB_STOP - 1) - (cur_rx % KILO_TAB_STOP);
+      cur_rx += (PORYGON_TAB_STOP - 1) - (cur_rx % PORYGON_TAB_STOP);
     }
     cur_rx++;
 
@@ -458,13 +458,13 @@ void editorUpdateRow(erow *row) {
   }
 
   free(row->render);
-  row->render = malloc(row->size + tabs * KILO_TAB_STOP + 1);
+  row->render = malloc(row->size + tabs * PORYGON_TAB_STOP + 1);
 
   int index = 0;
   for (j = 0; j < row->size; j++) {
     if (row->chars[j] == '\t') {
       row->render[index++] = ' ';
-      while (index % KILO_TAB_STOP != 0)
+      while (index % PORYGON_TAB_STOP != 0)
         row->render[index++] = ' ';
     } else {
       row->render[index++] = row->chars[j];
@@ -808,7 +808,7 @@ void editorDrawRows(struct abuf *ab) {
         char welcome[80];
 
         int welcomelen = snprintf(welcome, sizeof(welcome),
-                                  "Kilo editor -- version %s", KILO_VERSION);
+                                  "Porygon editor -- version %s", PORYGON_VERSION);
 
         if (welcomelen > E.screencols)
           welcomelen = E.screencols;
@@ -1040,7 +1040,7 @@ void editorProcessKeyPress() {
   // Map all the special key press to actions
   int c = editorReadKey();
 
-  static int quit_times = KILO_QUIT_TIMES;
+  static int quit_times = PORYGON_QUIT_TIMES;
 
   switch (c) {
   case '\r':
@@ -1120,7 +1120,7 @@ void editorProcessKeyPress() {
     break;
   }
 
-  quit_times = KILO_QUIT_TIMES;
+  quit_times = PORYGON_QUIT_TIMES;
 }
 
 /*** init ***/
